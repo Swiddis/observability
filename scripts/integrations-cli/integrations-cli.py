@@ -1,6 +1,8 @@
 #!./venv/bin/python3
-import click
 import os
+
+import click
+
 import helpers
 
 
