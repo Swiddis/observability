@@ -1,26 +1,13 @@
 #!./venv/bin/python3
 import click
 import os
-import json
+import helpers
 
 
 @click.group()
 def integrations_cli():
     """Create and maintain Integrations for the OpenSearch Integrations Plugin."""
     pass
-
-
-def make_config(name: str, path: str) -> dict:
-    return {
-        "name": name,
-        "version": {"integ": "0.1.0", "schema": "1.0.0", "resource": "^1.23.0"},
-        "description": "",
-        "identification": "",
-        "catalog": "observability",
-        "components": [],
-        "collection": [],
-        "repo": {"github": "file://" + path},
-    }
 
 
 @integrations_cli.command()
@@ -33,12 +20,9 @@ def create(name: str):
         raise click.ClickException(
             f"destination path '{integration_path}' exists and is non-empty"
         )
-    os.makedirs(integration_path, exist_ok=True)
-    cfg_path = os.path.join(integration_path, "config.json")
-    with open(cfg_path, "w") as config:
-        json.dump(
-            make_config(name, cfg_path), config, ensure_ascii=False, indent=2
-        )
+    builder = helpers.IntegrationBuilder().with_name(name).with_path(integration_path)
+    builder.build()
+    click.echo(f"Integration created at '{integration_path}'")
 
 
 @integrations_cli.command()
