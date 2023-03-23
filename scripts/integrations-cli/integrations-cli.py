@@ -14,7 +14,7 @@ def integrations_cli():
 
 
 @integrations_cli.command()
-@click.argument("name")
+@click.argument("filepath")
 def create(name: str):
     """Create a new Integration from a specified template."""
     click.echo(f"Creating new integration '{name}'")
@@ -31,21 +31,26 @@ def create(name: str):
 
 
 @integrations_cli.command()
-def check():
+@click.argument("name")
+def check(name: str):
     """Analyze the current Integration and report errors."""
-    click.echo("Checked integration")
+    click.echo(f"Checking integration '{name}'")
+    # No-op for now
+    click.echo(f"Checked integration '{name}'")
 
 
 @integrations_cli.command()
-@click.argument("filepath")
-def package(filepath: str):
+@click.argument("name")
+def package(name: str):
     """Package the current integration for use in OpenSearch."""
+    click.echo(f"Packaging integration '{name}'")
     os.makedirs("artifacts", exist_ok=True)
-    _, filename = os.path.split(filepath)
-    with zipfile.ZipFile(f"artifacts/{filename}.zip", "w") as zf:
-        for (_, dirnames, filenames) in os.walk(filepath):
+    integration_path = os.path.join(os.getcwd(), "integrations", name)
+    with zipfile.ZipFile(f"artifacts/{name}.zip", "w") as zf:
+        for (_, dirnames, filenames) in os.walk(integration_path):
             for item in dirnames + filenames:
-                zf.write(os.path.join(filepath, item), arcname=item)
+                zf.write(os.path.join(integration_path, item), arcname=item)
+    click.echo(f"Packaged integration '{name}'")
 
 
 if __name__ == "__main__":
