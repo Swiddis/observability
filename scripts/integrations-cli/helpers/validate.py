@@ -7,7 +7,10 @@ from .constants import SCHEMAS
 
 def validate_config(config: dict) -> dict:
     if "integration.schema" in SCHEMAS:
-        jsonschema.validate(SCHEMAS["integration.schema"], config)
+        jsonschema.validate(
+            instance = config,
+            schema = SCHEMAS["integration.schema"]
+        )
     else:
-        logging.warn("Config schema not found, skipping config validation")
+        raise ValueError("integration.schema does not exist")
     return config
