@@ -35,9 +35,7 @@ def create(name: str):
 
 def full_integration_is_valid(name: str) -> bool:
     integration_path = os.path.join(os.getcwd(), "integrations", name)
-    integration_parts = {
-        "config.json": helpers.validate.validate_config
-    }
+    integration_parts = {"config.json": helpers.validate.validate_config}
     encountered_errors = False
     for item, validator in integration_parts.items():
         item_path = os.path.join(integration_path, item)
@@ -74,7 +72,7 @@ def package(name: str):
     integration_path = os.path.join(os.getcwd(), "integrations", name)
     artifact_path = os.path.join("artifacts", f"{name}.zip")
     with zipfile.ZipFile(artifact_path, "w") as zf:
-        for (_, dirnames, filenames) in os.walk(integration_path):
+        for _, dirnames, filenames in os.walk(integration_path):
             for item in dirnames + filenames:
                 zf.write(os.path.join(integration_path, item), arcname=item)
     click.echo(colored(f"Packaged integration as '{artifact_path}'", "green"))
