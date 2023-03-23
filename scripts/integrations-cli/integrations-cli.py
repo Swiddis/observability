@@ -1,5 +1,6 @@
 #!./venv/bin/python3
 import os
+import zipfile
 
 import click
 
@@ -22,6 +23,8 @@ def create(name: str):
         raise click.ClickException(
             f"destination path '{integration_path}' exists and is non-empty"
         )
+    for subdir in ["assets", "info", "samples", "schema", "test"]:
+        os.makedirs(os.path.join(integration_path, subdir))
     builder = helpers.IntegrationBuilder().with_name(name).with_path(integration_path)
     builder.build()
     click.echo(f"Integration created at '{integration_path}'")
@@ -34,9 +37,15 @@ def check():
 
 
 @integrations_cli.command()
-def package():
+@click.argument("filepath")
+def package(filepath: str):
     """Package the current integration for use in OpenSearch."""
-    click.echo("Packaged integration")
+    os.makedirs("artifacts", exist_ok=True)
+    _, filename = os.path.split(filepath)
+    with zipfile.ZipFile(f"artifacts/{filename}.zip", "w") as zf:
+        for (_, dirnames, filenames) in os.walk(filepath):
+            for item in dirnames + filenames:
+                zf.write(os.path.join(filepath, item), arcname=item)
 
 
 if __name__ == "__main__":
