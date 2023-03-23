@@ -45,9 +45,10 @@ def full_integration_is_valid(name: str) -> bool:
             try:
                 loaded = json.load(item_data)
                 validator(loaded)
-            except jsonschema.exceptions.SchemaError as err:
+            except jsonschema.exceptions.ValidationError as err:
                 click.echo(colored(f"'{item_path}' is invalid", "red"))
-                click.echo(colored(str(err).replace("\n", "\n> "), "red"), err=True)
+                err_msg = ("> " + str(err)).replace("\n", "\n> ")
+                click.echo(colored(err_msg, "red"), err=True)
                 encountered_errors = True
     return not encountered_errors
 
