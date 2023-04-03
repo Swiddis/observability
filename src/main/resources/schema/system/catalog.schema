@@ -4,7 +4,11 @@
   "definitions": {
     "Catalog": {
       "type": "object",
+<<<<<<< HEAD
       "additionalProperties": true,
+=======
+      "additionalProperties": false,
+>>>>>>> 7c87745 ([BACKPORT] Move schema in main (#1485))
       "properties": {
         "catalog": {
           "type": "string"
@@ -36,7 +40,11 @@
     },
     "Category": {
       "type": "object",
+<<<<<<< HEAD
       "additionalProperties": true,
+=======
+      "additionalProperties": false,
+>>>>>>> 7c87745 ([BACKPORT] Move schema in main (#1485))
       "properties": {
         "category": {
           "type": "string"
@@ -68,7 +76,11 @@
     },
     "Component": {
       "type": "object",
+<<<<<<< HEAD
       "additionalProperties": true,
+=======
+      "additionalProperties": false,
+>>>>>>> 7c87745 ([BACKPORT] Move schema in main (#1485))
       "properties": {
         "component": {
           "type": "string"
