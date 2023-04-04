@@ -123,6 +123,15 @@ internal class ValidatorTests {
     }
 
     @Test
+    fun `test validator does not flag sample integration instance json`() {
+        val component = SystemComponent.INTEGRATION_INSTANCE
+        val validator = Validator(component)
+        val jsonPath = "../../../docs/schema/system/samples/integration-instance.json"
+        val json = File(jsonPath).readText(Charsets.UTF_8)
+        assertIs<Success>(validator.validate(json))
+    }
+
+    @Test
     fun `test missing json field fails validation`() {
         val config = buildIntegration(without = setOf("name"))
         val validator = Validator(SystemComponent.INTEGRATION)

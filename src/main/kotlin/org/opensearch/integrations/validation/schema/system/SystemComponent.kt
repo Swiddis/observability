@@ -7,6 +7,7 @@ enum class SystemComponent(val resourcePath: String) {
     DATASOURCE(ROOT + "datasource.schema"),
     INDEX_PATTERN(ROOT + "index-pattern.schema"),
     INTEGRATION(ROOT + "integration.schema"),
+    INTEGRATION_INSTANCE(ROOT + "integration-instance.schema"),
     NOTEBOOK(ROOT + "notebook.schema"),
     OPERATIONAL_PANEL(ROOT + "operational-panel.schema"),
     SAVED_QUERY(ROOT + "saved-query.schema"),
