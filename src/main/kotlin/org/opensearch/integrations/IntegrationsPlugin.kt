@@ -6,7 +6,11 @@ import org.opensearch.common.settings.ClusterSettings
 import org.opensearch.common.settings.IndexScopedSettings
 import org.opensearch.common.settings.Settings
 import org.opensearch.common.settings.SettingsFilter
-import org.opensearch.integrations.resthandler.IntegrationStoreRestHandler
+import org.opensearch.integrations.resthandler.CreateIntegrationStoreRestHandler
+import org.opensearch.integrations.resthandler.GetIntegrationStoreRestHandler
+import org.opensearch.integrations.resthandler.ValidateIntegrationRestHandler
+import org.opensearch.integrations.resthandler.UploadIntegrationAssetHandler
+import org.opensearch.integrations.resthandler.ActivateIntegrationHandler
 import org.opensearch.plugins.ActionPlugin
 import org.opensearch.plugins.Plugin
 import org.opensearch.rest.RestController
@@ -30,7 +34,11 @@ class IntegrationsPlugin: Plugin(), ActionPlugin {
         nodesInCluster: Supplier<DiscoveryNodes>
     ): List<RestHandler> {
         return listOf(
-            IntegrationStoreRestHandler()
+            CreateIntegrationStoreRestHandler(),
+            GetIntegrationStoreRestHandler(),
+            ValidateIntegrationRestHandler(),
+            UploadIntegrationAssetHandler(),
+            ActivateIntegrationHandler(),
         )
     }
 }
