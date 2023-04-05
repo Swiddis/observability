@@ -6,15 +6,17 @@ import org.opensearch.common.settings.ClusterSettings
 import org.opensearch.common.settings.IndexScopedSettings
 import org.opensearch.common.settings.Settings
 import org.opensearch.common.settings.SettingsFilter
-import org.opensearch.integrations.resthandler.CreateIntegrationStoreRestHandler
-import org.opensearch.integrations.resthandler.GetIntegrationStoreRestHandler
-import org.opensearch.integrations.resthandler.ValidateIntegrationRestHandler
-import org.opensearch.integrations.resthandler.UploadIntegrationAssetHandler
-import org.opensearch.integrations.resthandler.ActivateIntegrationHandler
+import org.opensearch.integrations.action.GetIntegrationAction
+import org.opensearch.integrations.action.CreateIntegrationAction
+import org.opensearch.integrations.action.ActivateIntegrationAction
+import org.opensearch.integrations.action.ValidateIntegrationAction
+import org.opensearch.integrations.action.UploadIntegrationAssetAction
+import org.opensearch.integrations.resthandler.SimpleRestHandler
 import org.opensearch.plugins.ActionPlugin
 import org.opensearch.plugins.Plugin
 import org.opensearch.rest.RestController
 import org.opensearch.rest.RestHandler
+import org.opensearch.rest.RestRequest.Method
 import java.util.function.Supplier
 
 class IntegrationsPlugin: Plugin(), ActionPlugin {
@@ -34,11 +36,36 @@ class IntegrationsPlugin: Plugin(), ActionPlugin {
         nodesInCluster: Supplier<DiscoveryNodes>
     ): List<RestHandler> {
         return listOf(
-            CreateIntegrationStoreRestHandler(),
-            GetIntegrationStoreRestHandler(),
-            ValidateIntegrationRestHandler(),
-            UploadIntegrationAssetHandler(),
-            ActivateIntegrationHandler(),
+            SimpleRestHandler.from(
+                "integration_store_get",
+                listOf(
+                    Pair(Method.GET, "$BASE_INTEGRATIONS_URI/store"),
+                    Pair(Method.GET, "$BASE_INTEGRATIONS_URI/store/{integration_id}")
+                ),
+                GetIntegrationAction()
+            ),
+            SimpleRestHandler.from(
+                "integration_store_create",
+                listOf(
+                    Pair(Method.POST, "$BASE_INTEGRATIONS_URI/store"),
+                ),
+                CreateIntegrationAction()
+            ),
+            SimpleRestHandler.from(
+                "integration_store_activate",
+                listOf(Pair(Method.PUT, "$BASE_INTEGRATIONS_URI/store/{integration_id}/activate")),
+                ActivateIntegrationAction()
+            ),
+            SimpleRestHandler.from(
+                "integration_store_upload",
+                listOf(Pair(Method.PUT, "$BASE_INTEGRATIONS_URI/store/{integration_id}/upload")),
+                UploadIntegrationAssetAction()
+            ),
+            SimpleRestHandler.from(
+                "integration_store_validate",
+                listOf(Pair(Method.PUT, "$BASE_INTEGRATIONS_URI/store/{integration_id}/validate")),
+                ValidateIntegrationAction()
+            ),
         )
     }
 }
