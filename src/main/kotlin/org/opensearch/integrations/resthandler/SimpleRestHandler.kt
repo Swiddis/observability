@@ -12,16 +12,18 @@ import org.opensearch.rest.RestRequest
  * If your handler needs more elaborate behavior, then manually override [org.opensearch.rest.BaseRestHandler].
  */
 object SimpleRestHandler {
-    fun <Request, Response> from(actionName: String, uris: List<Pair<RestRequest.Method, String>>, action: IntegrationAction<Request, Response>): BaseRestHandler {
+    fun <Request, Response> from(action: IntegrationAction<Request, Response>): BaseRestHandler {
         val handler = object : BaseRestHandler() {
             private val log by logger(SimpleRestHandler::class.java)
+            private val actionName = action.getName()
+            private val routes = action.getRoutes()
 
             override fun getName(): String {
                 return actionName
             }
 
             override fun routes(): List<RestHandler.Route> {
-                return uris.map {
+                return routes.map {
                     RestHandler.Route(it.first, it.second)
                 }
             }

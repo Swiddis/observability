@@ -37,33 +37,18 @@ class IntegrationsPlugin: Plugin(), ActionPlugin {
     ): List<RestHandler> {
         return listOf(
             SimpleRestHandler.from(
-                "integration_store_get",
-                listOf(
-                    Pair(Method.GET, "$BASE_INTEGRATIONS_URI/store"),
-                    Pair(Method.GET, "$BASE_INTEGRATIONS_URI/store/{integration_id}")
-                ),
                 GetIntegrationAction()
             ),
             SimpleRestHandler.from(
-                "integration_store_create",
-                listOf(
-                    Pair(Method.POST, "$BASE_INTEGRATIONS_URI/store"),
-                ),
                 CreateIntegrationAction()
             ),
             SimpleRestHandler.from(
-                "integration_store_activate",
-                listOf(Pair(Method.PUT, "$BASE_INTEGRATIONS_URI/store/{integration_id}/activate")),
                 ActivateIntegrationAction()
             ),
             SimpleRestHandler.from(
-                "integration_store_upload",
-                listOf(Pair(Method.PUT, "$BASE_INTEGRATIONS_URI/store/{integration_id}/upload")),
                 UploadIntegrationAssetAction()
             ),
             SimpleRestHandler.from(
-                "integration_store_validate",
-                listOf(Pair(Method.PUT, "$BASE_INTEGRATIONS_URI/store/{integration_id}/validate")),
                 ValidateIntegrationAction()
             ),
         )
