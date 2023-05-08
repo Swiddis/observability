@@ -38,7 +38,9 @@ class GetIntegrationIT : PluginRestTestCase() {
             "",
             RestStatus.OK.status
         )
-        Assert.assertEquals(sampleId, response.get("objectId").asString)
+        // TODO rename to hits, get one should return single object
+        val responseObject = response.get("observabilityObjectList").asJsonArray.first().asJsonObject
+        Assert.assertEquals(sampleId, responseObject.get("objectId").asString)
     }
 
     fun `test get two objects has correct total hits`() {

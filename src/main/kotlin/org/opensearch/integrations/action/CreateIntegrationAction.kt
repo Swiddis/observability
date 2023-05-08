@@ -57,7 +57,6 @@ internal class CreateIntegrationAction @Inject constructor(
             "Integration Creation failed",
             RestStatus.INTERNAL_SERVER_ERROR
         )
-//        return CreateIntegrationResponse(docId)
-        return CreateIntegrationResponse("96847220-5261-44d0-89b4-65f3a659f13a")
+        return CreateIntegrationResponse(docId)
     }
 }
