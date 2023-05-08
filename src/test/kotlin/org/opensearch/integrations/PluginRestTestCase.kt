@@ -27,6 +27,7 @@ import org.opensearch.test.rest.OpenSearchRestTestCase
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.lang.AssertionError
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -150,10 +151,15 @@ abstract class PluginRestTestCase : OpenSearchRestTestCase() {
         } catch (exception: ResponseException) {
             exception.response
         }
-        if (expectedRestStatus != null) {
-            assertEquals(expectedRestStatus, response.statusLine.statusCode)
-        }
         val responseBody = getResponseBody(response)
+        expectedRestStatus?.run {
+            if (expectedRestStatus != response.statusLine.statusCode) {
+                throw AssertionError(
+                    "Expected status code $expectedRestStatus but got ${response.statusLine.statusCode}\n" +
+                    "Full Response body: \"$responseBody\""
+                )
+            }
+        }
         return jsonify(responseBody)
     }
 
