@@ -52,9 +52,12 @@ class GetIntegrationIT : PluginRestTestCase() {
             RestStatus.OK.status
         )
         Assert.assertEquals(2, response.get("totalHits").asInt)
-        Assert.assertEquals(sampleIds, response.get("hits").asJsonArray.map {
-            it.asJsonObject.get("objectId").asString
-        }.sorted())
+        Assert.assertEquals(
+            sampleIds,
+            response.get("hits").asJsonArray.map {
+                it.asJsonObject.get("objectId").asString
+            }.sorted()
+        )
     }
 
     fun `test get two objects returns correct objects`() {
@@ -65,9 +68,12 @@ class GetIntegrationIT : PluginRestTestCase() {
             "",
             RestStatus.OK.status
         )
-        Assert.assertEquals(sampleIds, response.get("hits").asJsonArray.map {
-            it.asJsonObject.get("objectId").asString
-        }.sorted())
+        Assert.assertEquals(
+            sampleIds,
+            response.get("hits").asJsonArray.map {
+                it.asJsonObject.get("objectId").asString
+            }.sorted()
+        )
     }
 
     fun `test get empty object list`() {

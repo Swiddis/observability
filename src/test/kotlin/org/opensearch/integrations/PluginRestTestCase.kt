@@ -156,7 +156,7 @@ abstract class PluginRestTestCase : OpenSearchRestTestCase() {
             if (expectedRestStatus != response.statusLine.statusCode) {
                 throw AssertionError(
                     "Expected status code $expectedRestStatus but got ${response.statusLine.statusCode}\n" +
-                    "Full Response body: \"$responseBody\""
+                        "Full Response body: \"$responseBody\""
                 )
             }
         }

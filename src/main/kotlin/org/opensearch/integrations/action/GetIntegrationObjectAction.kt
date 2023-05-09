@@ -14,13 +14,11 @@ import org.opensearch.commons.authuser.User
 import org.opensearch.core.xcontent.NamedXContentRegistry
 import org.opensearch.integrations.index.IntegrationIndex
 import org.opensearch.integrations.model.IntegrationObjectSearchResult
-import org.opensearch.observability.ObservabilityPlugin
 import org.opensearch.observability.ObservabilityPlugin.Companion.LOG_PREFIX
 import org.opensearch.observability.action.GetObservabilityObjectRequest
 import org.opensearch.observability.action.GetObservabilityObjectResponse
 import org.opensearch.observability.action.ObservabilityActions
 import org.opensearch.observability.action.PluginBaseAction
-import org.opensearch.observability.index.ObservabilityIndex
 import org.opensearch.observability.metrics.Metrics
 import org.opensearch.observability.security.UserAccessManager
 import org.opensearch.observability.util.logger
@@ -54,7 +52,7 @@ internal class GetIntegrationObjectAction @Inject constructor(
      * @return [GetObservabilityObjectResponse]
      */
     private fun getAll(request: GetIntegrationObjectRequest, user: User?): GetIntegrationObjectResponse {
-        log.info("${LOG_PREFIX}:ObservabilityObject-getAll")
+        log.info("$LOG_PREFIX:ObservabilityObject-getAll")
         val searchResult = IntegrationIndex.getAllIntegrationObjects(
             UserAccessManager.getUserTenant(user),
             UserAccessManager.getSearchAccessInfo(user),
@@ -89,7 +87,7 @@ internal class GetIntegrationObjectAction @Inject constructor(
      * {@inheritDoc}
      */
     override fun executeRequest(request: GetIntegrationObjectRequest, user: User?): GetIntegrationObjectResponse {
-        log.info("${LOG_PREFIX}:IntegrationObject-get ${request.objectIds}")
+        log.info("$LOG_PREFIX:IntegrationObject-get ${request.objectIds}")
         UserAccessManager.validateUser(user)
         return when (request.objectIds.size) {
             0 -> getAll(request, user)
