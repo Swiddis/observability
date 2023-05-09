@@ -38,8 +38,8 @@ class GetIntegrationIT : PluginRestTestCase() {
             "",
             RestStatus.OK.status
         )
-        // TODO rename to hits, get one should return single object
-        val responseObject = response.get("observabilityObjectList").asJsonArray.first().asJsonObject
+        // TODO get one should return single object, not list
+        val responseObject = response.get("hits").asJsonArray.first().asJsonObject
         Assert.assertEquals(sampleId, responseObject.get("objectId").asString)
     }
 
