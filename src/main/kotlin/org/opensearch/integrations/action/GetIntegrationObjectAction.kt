@@ -52,7 +52,7 @@ internal class GetIntegrationObjectAction @Inject constructor(
      * @return [GetObservabilityObjectResponse]
      */
     private fun getAll(request: GetIntegrationObjectRequest, user: User?): GetIntegrationObjectResponse {
-        log.info("$LOG_PREFIX:ObservabilityObject-getAll")
+        log.info("$LOG_PREFIX:IntegrationObject-getAll")
         val searchResult = IntegrationIndex.getAllIntegrationObjects(
             UserAccessManager.getUserTenant(user),
             UserAccessManager.getSearchAccessInfo(user),

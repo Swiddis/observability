@@ -45,6 +45,7 @@ class GetIntegrationIT : PluginRestTestCase() {
 
     fun `test get two objects has correct total hits`() {
         val sampleIds = listOf(getSampleIntegrationID(), getSampleIntegrationID()).sorted()
+        Thread.sleep(1000) // Wait for indexing to flush so GET returns results
         val response = executeRequest(
             RestRequest.Method.GET.name,
             "$BASE_INTEGRATIONS_URI/store",
@@ -56,6 +57,7 @@ class GetIntegrationIT : PluginRestTestCase() {
 
     fun `test get two objects returns correct objects`() {
         val sampleIds = listOf(getSampleIntegrationID(), getSampleIntegrationID()).sorted()
+        Thread.sleep(1000) // Wait for indexing to flush so GET returns results
         val response = executeRequest(
             RestRequest.Method.GET.name,
             "$BASE_INTEGRATIONS_URI/store",

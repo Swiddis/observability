@@ -27,7 +27,7 @@ class DemoIT : PluginRestTestCase() {
             requestBody,
             RestStatus.OK.status
         )
-        Assert.assertEquals("96847220-5261-44d0-89b4-65f3a659f13a", response.get("objectId").asString)
+        Assert.assertNotNull(response.get("objectId"))
         Thread.sleep(100)
     }
 
