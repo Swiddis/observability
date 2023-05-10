@@ -9,7 +9,7 @@ package org.opensearch.integrations.model
  */
 internal object RestTag {
     const val QUERY_FIELD = "query"
-    const val OBJECT_LIST_FIELD = "observabilityObjectList"
+    const val OBJECT_LIST_FIELD = "hits"
     const val DELETE_RESPONSE_LIST_TAG = "deleteResponseList"
     const val OBJECT_TYPE_FIELD = "objectType"
     const val OBJECT_ID_FIELD = "objectId"

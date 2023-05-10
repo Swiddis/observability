@@ -9,6 +9,8 @@ import org.opensearch.ResourceAlreadyExistsException
 import org.opensearch.action.DocWriteResponse
 import org.opensearch.action.admin.indices.create.CreateIndexRequest
 import org.opensearch.action.admin.indices.mapping.put.PutMappingRequest
+import org.opensearch.action.get.GetRequest
+import org.opensearch.action.get.GetResponse
 import org.opensearch.action.index.IndexRequest
 import org.opensearch.action.search.SearchRequest
 import org.opensearch.client.Client
@@ -23,6 +25,7 @@ import org.opensearch.index.IndexNotFoundException
 import org.opensearch.index.query.QueryBuilders
 import org.opensearch.integrations.action.GetIntegrationObjectRequest
 import org.opensearch.integrations.model.IntegrationObjectDoc
+import org.opensearch.integrations.model.IntegrationObjectDocInfo
 import org.opensearch.integrations.model.IntegrationObjectSearchResult
 import org.opensearch.integrations.model.SearchResults
 import org.opensearch.observability.ObservabilityPlugin.Companion.LOG_PREFIX
@@ -200,5 +203,35 @@ internal object IntegrationIndex {
                 " retCount:${result.objectList.size}, totalCount:${result.totalHits}"
         )
         return result
+    }
+
+    /**
+     * Get integration object
+     *
+     * @param id
+     * @return [ObservabilityObjectDocInfo]
+     */
+    fun getIntegrationObjectDoc(id: String): IntegrationObjectDocInfo? {
+        createIndex()
+        val getRequest = GetRequest(INDEX_NAME).id(id)
+        val actionFuture = client.get(getRequest)
+        val response = actionFuture.actionGet(PluginSettings.operationTimeoutMs)
+        return parseIntegrationObjectDoc(id, response)
+    }
+
+    private fun parseIntegrationObjectDoc(id: String, response: GetResponse): IntegrationObjectDocInfo? {
+        return if (response.sourceAsString == null) {
+            log.warn("$LOG_PREFIX:parseIntegrationObject - $id not found; response:$response")
+            null
+        } else {
+            val parser = XContentType.JSON.xContent().createParser(
+                NamedXContentRegistry.EMPTY,
+                LoggingDeprecationHandler.INSTANCE,
+                response.sourceAsString
+            )
+            parser.nextToken()
+            val doc = IntegrationObjectDoc.parse(parser, id)
+            IntegrationObjectDocInfo(id, response.version, response.seqNo, response.primaryTerm, doc)
+        }
     }
 }

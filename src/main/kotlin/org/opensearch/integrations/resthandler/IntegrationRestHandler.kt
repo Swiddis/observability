@@ -34,7 +34,7 @@ class IntegrationRestHandler : BaseRestHandler() {
     companion object {
         private const val INTEGRATIONS_ACTION = "integrations_actions"
         private const val URI = "$BASE_INTEGRATIONS_URI/store"
-        private const val ID_FIELD = "integration_id"
+        private const val ID_FIELD = RestTag.OBJECT_ID_FIELD
         private val log by logger(IntegrationRestHandler::class.java)
         var added = false
     }
