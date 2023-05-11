@@ -9,6 +9,7 @@ import org.opensearch.client.node.NodeClient
 import org.opensearch.common.xcontent.XContentFactory
 import org.opensearch.commons.utils.contentParserNextToken
 import org.opensearch.commons.utils.logger
+import org.opensearch.core.xcontent.XContentBuilder
 import org.opensearch.integrations.action.CreateIntegrationAction
 import org.opensearch.integrations.action.CreateIntegrationRequest
 import org.opensearch.integrations.action.GetIntegrationObjectAction
@@ -73,6 +74,7 @@ class IntegrationRestHandler : BaseRestHandler() {
             Route(Method.PUT, "$URI/{$ID_FIELD}/activate"),
             Route(Method.GET, "$URI/list_all"),
             Route(Method.GET, "$URI/list_added"),
+            Route(Method.GET, "$URI/list_added_pop"),
             Route(Method.GET, "$URI/details"),
         )
     }
@@ -128,16 +130,8 @@ class IntegrationRestHandler : BaseRestHandler() {
         }
     }
 
-    override fun prepareRequest(request: RestRequest, client: NodeClient): RestChannelConsumer {
-        log.info("Received: ${request.path()}")
-
-//        templateName: nginx
-//        version: 1.0.0
-//        description: Nginx HTTP server collector
-//        catalog: observability
-//        collections: [logs, metrics]
-//        assetUrl: https://cdn.iconscout.com/icon/free/png-256/nginx-3521604-2945048.png
-        val json = XContentFactory
+    private fun sampleListAllJson(): XContentBuilder {
+        return XContentFactory
             .jsonBuilder()
             .startObject()
             .startArray("integrations")
@@ -150,25 +144,67 @@ class IntegrationRestHandler : BaseRestHandler() {
             .endObject()
             .endArray()
             .endObject()
+    }
+
+    private fun sampleListAddedEmptyJson(): XContentBuilder {
+        return XContentFactory
+            .jsonBuilder()
+            .startObject()
+            .startArray("test")
+            .endArray()
+            .endObject()
+    }
+
+    private fun sampleListAddedJson(): XContentBuilder {
+        return XContentFactory
+            .jsonBuilder()
+            .startObject()
+            .startArray("test")
+            .startObject()
+            .field("templateName", "nginx")
+            .field("type", "dashboard")
+            .field("dataset", "prod")
+            .field("namespace", "us_east")
+            .field("id", "nginx-prod-us_east")
+            .field("version", "0.1.0")
+            .field("description", "Nginx HTTP server collector for east cost prod systems")
+            .field("template", "https://github.com/opensearch-project/observability/blob/2.x/integrations/nginx/config.json")
+            .field("creationDate", "2016-08-29T09:12:33.001Z")
+            .field("author", "Ani")
+            .field("status", "LOADED")
+            .field("dashboardUrl", "http://localhost:5601/nol/app/dashboards#/view/96847220-5261-44d0-89b4-65f3a659f13a?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))&_a=(description:'Nginx%20dashboard%20with%20basic%20Observability%20on%20access%20%2F%20error%20logs',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,useMargins:!t),query:(language:kuery,query:''),timeRestore:!f,title:'%5BNGINX%20Core%20Logs%201.0%5D%20Overview',viewMode:view)")
+            .startObject("assets")
+            .field("name", "sso-logs-dashboard-new.ndjson")
+            .field("creationDate", "'2016-08-29T09:12:33.001Z'")
+            .field("status", "LOADED")
+            .endObject()
+            .endObject()
+            .endArray()
+            .endObject()
+    }
+
+    override fun prepareRequest(request: RestRequest, client: NodeClient): RestChannelConsumer {
+        log.info("Integrations received: ${request.path()}")
         return when (request.method()) {
             Method.POST -> run {
                 added = true
                 return executeCreateRequest(request, client)
             }
             Method.GET -> {
-                when (request.uri().split("/").last()) {
+                when (request.path().split("/").last()) {
                     "list_all" -> RestChannelConsumer {
-                        it.sendResponse(BytesRestResponse(RestStatus.OK, json))
+                        it.sendResponse(BytesRestResponse(RestStatus.OK, sampleListAllJson()))
                     }
                     "list_added" -> {
-                        if (added) {
-                            return RestChannelConsumer {
-                                it.sendResponse(BytesRestResponse(RestStatus.OK, "{\"list\":[{}]}"))
-                            }
-                        } else {
-                            RestChannelConsumer {
-                                it.sendResponse(BytesRestResponse(RestStatus.OK, "{\"list\":[]}"))
-                            }
+                        log.info("Integrations returning empty json")
+                        return RestChannelConsumer {
+                            it.sendResponse(BytesRestResponse(RestStatus.OK, sampleListAddedEmptyJson()))
+                        }
+                    }
+                    "list_added_pop" -> {
+                        log.info("Integrations returning populated json")
+                        return RestChannelConsumer {
+                            it.sendResponse(BytesRestResponse(RestStatus.OK, sampleListAddedJson()))
                         }
                     }
                     "details" -> RestChannelConsumer {
