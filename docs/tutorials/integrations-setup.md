@@ -62,7 +62,7 @@ You should get:
 <details>
     <summary>Full Request for copy-pasting</summary>
 
-```json5
+```http
 POST _component_template/http_template
 {
   "template": {
@@ -195,7 +195,7 @@ Do the same for the communication mapping to `_component_template/communication_
 <details>
     <summary>Full Request for copy-pasting</summary>
 
-```json5
+```http
 POST _component_template/communication_template
 {
   "template": {
@@ -302,3 +302,312 @@ POST _component_template/communication_template
 
 Similar to the last one, we should get an `{"acknowledged": true}` response.
 As an additional sanity check, we can run `GET _component_template` and verify that the two templates are returned.
+
+## Creating the Index Template
+
+After the dependencies are added, we can make the index template.
+This is the template that will be applied to the data.
+Giving our template the name `logs`, we'll `POST` the mapping file to `_index_template/logs`.
+
+<details>
+    <summary>Full Request for copy-pasting</summary>
+
+```http
+POST _index_template/logs
+{
+  "index_patterns": [
+    "sso_logs-*-*"
+  ],
+  "data_stream": {},
+  "template": {
+    "mappings": {
+      "_meta": {
+        "version": "1.0.0",
+        "catalog": "observability",
+        "type": "logs",
+        "component": "log",
+        "correlations": [
+          {
+            "field": "spanId",
+            "foreign-schema": "traces",
+            "foreign-field": "spanId"
+          },
+          {
+            "field": "traceId",
+            "foreign-schema": "traces",
+            "foreign-field": "traceId"
+          }
+        ]
+      },
+      "_source": {
+        "enabled": true
+      },
+      "dynamic_templates": [
+        {
+          "resources_map": {
+            "mapping": {
+              "type": "keyword"
+            },
+            "path_match": "resource.*"
+          }
+        },
+        {
+          "attributes_map": {
+            "mapping": {
+              "type": "keyword"
+            },
+            "path_match": "attributes.*"
+          }
+        },
+        {
+          "instrumentation_scope_attributes_map": {
+            "mapping": {
+              "type": "keyword"
+            },
+            "path_match": "instrumentationScope.attributes.*"
+          }
+        }
+      ],
+      "properties": {
+        "severity": {
+          "properties": {
+            "number": {
+              "type": "long"
+            },
+            "text": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "data_stream": {
+              "properties": {
+                "dataset": {
+                  "ignore_above": 128,
+                  "type": "keyword"
+                },
+                "namespace": {
+                  "ignore_above": 128,
+                  "type": "keyword"
+                },
+                "type": {
+                  "ignore_above": 56,
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "body": {
+          "type": "text"
+        },
+        "@timestamp": {
+          "type": "date"
+        },
+        "observedTimestamp": {
+          "type": "date"
+        },
+        "observerTime": {
+          "type": "alias",
+          "path": "observedTimestamp"
+        },
+        "traceId": {
+          "ignore_above": 256,
+          "type": "keyword"
+        },
+        "spanId": {
+          "ignore_above": 256,
+          "type": "keyword"
+        },
+        "schemaUrl": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "instrumentationScope": {
+          "properties": {
+            "name": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 128
+                }
+              }
+            },
+            "version": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "dropped_attributes_count": {
+              "type": "integer"
+            },
+            "schemaUrl": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "event": {
+          "properties": {
+            "domain": {
+              "ignore_above": 256,
+              "type": "keyword"
+            },
+            "name": {
+              "ignore_above": 256,
+              "type": "keyword"
+            },
+            "source": {
+              "ignore_above": 256,
+              "type": "keyword"
+            },
+            "category": {
+              "ignore_above": 256,
+              "type": "keyword"
+            },
+            "type": {
+              "ignore_above": 256,
+              "type": "keyword"
+            },
+            "kind": {
+              "ignore_above": 256,
+              "type": "keyword"
+            },
+            "result": {
+              "ignore_above": 256,
+              "type": "keyword"
+            },
+            "exception": {
+              "properties": {
+                "message": {
+                  "ignore_above": 1024,
+                  "type": "keyword"
+                },
+                "type": {
+                  "ignore_above": 256,
+                  "type": "keyword"
+                },
+                "stacktrace": {
+                  "type": "text"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "settings": {
+      "index": {
+        "mapping": {
+          "total_fields": {
+            "limit": 10000
+          }
+        },
+        "refresh_interval": "5s"
+      }
+    }
+  },
+  "composed_of": [
+    "http_template",
+    "communication_template"
+  ],
+  "version": 1,
+  "_meta": {
+    "description": "Simple Schema For Observability",
+    "catalog": "observability",
+    "type": "logs",
+    "correlations": [
+      {
+        "field": "spanId",
+        "foreign-schema": "traces",
+        "foreign-field": "spanId"
+      },
+      {
+        "field": "traceId",
+        "foreign-schema": "traces",
+        "foreign-field": "traceId"
+      }
+    ]
+  }
+}
+```
+</details>
+
+On success, there will be an `{"acknowledged": true}` response.
+We can additionally verify the addition with `GET _index_template/logs`.
+
+At this point, the template will be enforced on all new indices with the template's index pattern.
+
+```json5
+{
+    "index_patterns": [
+        "sso_logs-*-*"
+    ],
+    // ...
+}
+```
+
+We can verify this by attempting to create an invalid document on one of these indices.
+
+```http
+POST sso_logs-demo-demo/_doc
+{
+  "invalid": true
+}
+```
+
+An error response with `"type": "mapper_parsing_exception"` will be returned.
+
+In contrast, attempting to create a valid log should work:
+
+```http
+POST sso_logs-demo-demo/_doc
+{
+  "@timestamp": "2022-12-09T10:39:23.000Z",
+  "http": {
+    "method": "GET",
+    "flavor": "1.1",
+    "url": "https://example.com:8080/webshop/articles/4?s=1"
+  },
+  "destination": {
+    "domain": "example.com",
+    "address": "192.0.2.5",
+    "port": 8080
+  },
+  "response": {
+    "status_code": 200
+  }
+}
+```
+
+Should return a response with `"result": "created"`.
+
+The demo stream can be cleared with `DELETE _data_stream/sso_logs-demo-demo`.
+
+## Conclusion
+
+At this point, an index template has been set up for use with the Integrations Plugin.
+In later tutorials, we will show how to create integrations using this template, and how to load them as a user.
