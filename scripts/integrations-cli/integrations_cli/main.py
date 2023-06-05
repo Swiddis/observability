@@ -7,6 +7,7 @@ import click
 from returns.pipeline import is_successful
 from returns.result import Result
 from termcolor import colored
+from beartype import beartype
 
 import helpers
 
@@ -57,18 +58,24 @@ def do_add_component(builder: helpers.IntegrationBuilder) -> bool:
     )
 
 
-@integrations_cli.command()
-@click.argument("name")
-def create(name: str):
-    """Create a new Integration from a specified template."""
-    click.echo(f"Creating new integration '{name}'")
+@beartype
+def prepare_integration_directory(name: str) -> str:
     integration_path = os.path.join(os.getcwd(), "integrations", name)
     if os.path.exists(integration_path) and len(os.listdir(integration_path)) != 0:
         raise click.ClickException(
             f"destination path '{integration_path}' exists and is non-empty"
         )
-    for subdir in ["assets", "schema", "assets/display"]:
+    for subdir in ["assets", "schema", "static"]:
         os.makedirs(os.path.join(integration_path, subdir))
+    return integration_path
+
+
+@integrations_cli.command()
+@click.argument("name")
+def create(name: str):
+    """Create a new Integration from a specified template."""
+    click.echo(f"Creating new integration '{name}'")
+    integration_path = prepare_integration_directory(name)
     builder = helpers.IntegrationBuilder().with_name(name).with_path(integration_path)
     click.prompt("Schema version", default="1.0.0", type=builder.with_schema_version)
     click.prompt("Resource version", type=builder.with_resource_version)
@@ -137,7 +144,10 @@ def package(name: str):
     with zipfile.ZipFile(artifact_path, "w") as zf:
         for dirpath, dirnames, filenames in os.walk(integration_path):
             for item in dirnames + filenames:
-                zf.write(os.path.join(integration_path, dirpath, item), arcname=os.path.join(dirpath, item))
+                zf.write(
+                    os.path.join(integration_path, dirpath, item),
+                    arcname=os.path.join(dirpath, item),
+                )
     click.echo(colored(f"Packaged integration as '{artifact_path}'", "green"))
 
 
