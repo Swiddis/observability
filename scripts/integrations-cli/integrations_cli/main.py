@@ -110,6 +110,7 @@ def validate_component(path: str, validator) -> Result[dict, Exception]:
         return result
 
 
+@beartype
 def full_integration_is_valid(name: str) -> bool:
     integration_path = os.path.join(os.getcwd(), "integrations", name)
     integration_parts = {"config.json": helpers.validate.validate_config}

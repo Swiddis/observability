@@ -6,6 +6,7 @@ from urllib import parse
 import click
 import requests
 from termcolor import colored
+from beartype import beartype
 
 from .constants import DEFAULT_CONFIG
 from .validate import validate_config
@@ -18,30 +19,36 @@ class IntegrationBuilder:
         self.dashboards = []
         self.mappings = dict()
 
+    @beartype
     def with_name(self, name: str) -> "IntegrationBuilder":
         self.config["template-name"] = name
         return self
 
+    @beartype
     def with_path(self, path: str) -> "IntegrationBuilder":
         self.path = path
         return self
 
+    @beartype
     def with_schema_version(self, version: str) -> "IntegrationBuilder":
         if not re.match(r"^\d+\.\d+\.\d+", version):
             raise ValueError("Invalid version")
         self.config["version"]["schema"] = version
         return self
 
+    @beartype
     def with_resource_version(self, version: str) -> "IntegrationBuilder":
         if not re.match(r"^\^?\d+\.\d+\.\d+", version):
             raise ValueError("Invalid version")
         self.config["version"]["resource"] = version
         return self
 
+    @beartype
     def with_description(self, desc: str) -> "IntegrationBuilder":
         self.config["description"] = desc
         return self
 
+    @beartype
     def with_repository(self, repo_url: str) -> "IntegrationBuilder":
         if repo_url.strip() == "":
             return self
@@ -50,6 +57,7 @@ class IntegrationBuilder:
         self.config["repository"]["url"] = repo_url
         return self
 
+    @beartype
     def with_component(self, component: dict) -> "IntegrationBuilder":
         ## TODO make robust
         self.config["components"] = sorted(
@@ -73,6 +81,7 @@ class IntegrationBuilder:
             )
         return self
 
+    @beartype
     def with_dashboard(self, component: str) -> "IntegrationBuilder":
         ## TODO make robust
         self.dashboards.append(component)
@@ -90,7 +99,7 @@ class IntegrationBuilder:
         for dashboard in self.dashboards:
             with open(dashboard, "r") as fin:
                 with open(
-                    os.path.join(self.path, "assets/display", dashboard.split("/")[-1]),
+                    os.path.join(self.path, "assets", dashboard.split("/")[-1]),
                     "w",
                 ) as fout:
                     fout.write(fin.read())
